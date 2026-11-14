@@ -1,0 +1,74 @@
+# Maintainer: dispaly
+pkgname=ouvert-branding
+pkgver=1.0
+pkgrel=7
+pkgdesc="Оформление Ouvert Linux: обои, логотип, конфиг fastfetch"
+arch=('any')
+url="https://example.com/ouvert"
+license=('LicenseRef-Ouvert')
+depends=('fastfetch' 'bash')
+# chafa нужен только для генерации fastfetch-logo.ansi (делается заранее),
+# в рантайме лого статичен, поэтому в depends его нет.
+source=('ouvert.png'
+        'ouvert-walp.png'
+        'ouvert-logo.png'
+        'grub-bg.png'
+        'fastfetch-logo.ansi'
+        'fastfetch-logo-ascii.txt'
+        'fastfetch-config.jsonc'
+        'ouvert-wallpapers.hook'
+        'ouvert-restore-wallpapers.sh'
+        'cosmic-bg-all'
+        'cosmic-bg-backgrounds'
+        'cosmic-time-military'
+        'LICENSE')
+sha256sums=('SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP')
+
+package() {
+    # Обои: ouvert — дефолт (угол), ouvert-walp — запасная (лок-ап)
+    install -Dm644 "$srcdir/ouvert.png"        "$pkgdir/usr/share/wallpapers/Ouvert/ouvert.png"
+    install -Dm644 "$srcdir/ouvert-walp.png"  "$pkgdir/usr/share/wallpapers/Ouvert/ouvert-walp.png"
+
+    # Логотип дистрибутива (для LOGO= в os-release и общего использования)
+    install -Dm644 "$srcdir/ouvert-logo.png" "$pkgdir/usr/share/pixmaps/ouvert.png"
+
+    # Ресурсы, на которые ссылаются custom_commands / fastfetch
+    install -Dm644 "$srcdir/grub-bg.png"              "$pkgdir/usr/share/ouvert/grub-bg.png"
+    install -Dm644 "$srcdir/fastfetch-logo.ansi"      "$pkgdir/usr/share/ouvert/fastfetch-logo.ansi"
+    install -Dm644 "$srcdir/fastfetch-logo-ascii.txt" "$pkgdir/usr/share/ouvert/fastfetch-logo-ascii.txt"
+
+    # Конфиг fastfetch для будущих пользователей (новый юзер копирует /etc/skel)
+    install -Dm644 "$srcdir/fastfetch-config.jsonc" "$pkgdir/etc/skel/.config/fastfetch/config.jsonc"
+
+    # Bug 47 cosmic: штатный оверрайд cosmic-config.
+    # Системный дефолт лежит в /usr/share/cosmic/ и принадлежит пакету
+    # cosmic-bg — писать туда НЕЛЬЗЯ (конфликт файлов в pacman и
+    # перезапись при -Syu). Пользовательский слой ~/.config/cosmic/
+    # ничей, поэтому кладём в /etc/skel. Хук restore-wallpapers.sh
+    # здесь не нужен: чужих файлов не трогаем, восстанавливать нечего.
+    install -Dm644 "$srcdir/cosmic-bg-all" "$pkgdir/etc/skel/.config/cosmic/com.system76.CosmicBackground/v1/all"
+    install -Dm644 "$srcdir/cosmic-bg-backgrounds" "$pkgdir/etc/skel/.config/cosmic/com.system76.CosmicBackground/v1/backgrounds"
+    # Bug 65 (Патч 66): 24-часовые часы в панели; дефолт апплета в бинаре = 12h
+    install -Dm644 "$srcdir/cosmic-time-military" "$pkgdir/etc/skel/.config/cosmic/com.system76.CosmicAppletTime/v1/military_time"
+
+    # pacman-хук: обновление xfdesktop / plasma-workspace-wallpapers
+    # затирает наши обои штатными. Триггер ПО ПУТЯМ, а не по имени
+    # пакета: имена в Arch переезжают, путь — нет.
+    install -Dm644 "$srcdir/ouvert-wallpapers.hook" "$pkgdir/usr/share/libalpm/hooks/ouvert-wallpapers.hook"
+    install -Dm755 "$srcdir/ouvert-restore-wallpapers.sh" "$pkgdir/usr/share/ouvert/restore-wallpapers.sh"
+    # Текст лицензии: license=(LicenseRef-*) обязывает положить
+    # файл в /usr/share/licenses/$pkgname/ — иначе namcap даёт E.
+    install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

@@ -1,0 +1,12 @@
+Ouvert Linux live environment.
+
+The installer starts automatically on tty1.
+If it did not, run it manually:
+    ouvert
+
+Network:
+    Wi-Fi ............ iwctl
+    Mobile (WWAN) .... mmcli
+    Ethernet / WLAN / WWAN over DHCP should work automatically.
+
+Switch to a console: Ctrl+Alt+F2
