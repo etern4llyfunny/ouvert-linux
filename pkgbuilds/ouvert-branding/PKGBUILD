@@ -1,7 +1,7 @@
 # Maintainer: dispaly
 pkgname=ouvert-branding
 pkgver=1.0
-pkgrel=7
+pkgrel=8
 pkgdesc="Оформление Ouvert Linux: обои, логотип, конфиг fastfetch"
 arch=('any')
 url="https://example.com/ouvert"
@@ -22,19 +22,19 @@ source=('ouvert.png'
         'cosmic-bg-backgrounds'
         'cosmic-time-military'
         'LICENSE')
-sha256sums=('SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP')
+sha256sums=('9ecca6a8f64ccabaaf4278f942eb8c325fe943b89d3c41736a445d00814518a1'
+            'da108f3ff4be71b8ce8ac6b466d058b1409d30c240c6923845a4c029d012667d'
+            '81d6230bba147e45a24e478abeb7b43e9055231a245e66bd388f209488d6fb3e'
+            'd5fa5e211950f79c2ff52e4cd9a3df170c5def339934c9f76dbd2679656ed9c9'
+            'c352514a115d50a66656ee352ec67095b2bb8daddd0c9b8f4ac59ce2c3c6e3f3'
+            'a610095d856837d0a4b616ae085b99e2c93859c8e7632f90d27b09785b7cd1e2'
+            '277f2097bcf252d0f991c6f10c29c1347641feed25adbd59287a85f4c060296f'
+            'b0de94e8d1852f388afa0d84e1fd517897f2a55ff5067898e9a826eaece2ab66'
+            '2676d62f2edc77ca5f11fd24dbe772b67638ac424df30fe8db1bf779b0f924b6'
+            '0f3331ec40467164686a145823f41de72cb91f189d62e1d56f7a66b9b8fc8089'
+            '906244780718641d34e873914928b47aad7b2c042444d2b356a3f3b10e1c2b48'
+            'b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b'
+            'f0e410a7891ae975d7c07a1fe895f69a95e5173948f82cfbde2c72ab5c4491bf')
 
 package() {
     # Обои: ouvert — дефолт (угол), ouvert-walp — запасная (лок-ап)
