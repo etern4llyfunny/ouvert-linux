@@ -108,6 +108,81 @@ KB_LAYOUTS = {
     "ru": {"kb_layout": "ru", "x11": None},
 }
 
+EXTRA_KB_LAYOUTS = [
+    ("de", "Немецкая (de)", "German (de)"),
+    ("fr", "Французская (fr)", "French (fr)"),
+    ("es", "Испанская (es)", "Spanish (es)"),
+    ("it", "Итальянская (it)", "Italian (it)"),
+    ("pl", "Польская (pl)", "Polish (pl)"),
+    ("ua", "Украинская (ua)", "Ukrainian (ua)"),
+    ("by", "Белорусская (by)", "Belarusian (by)"),
+    ("kz", "Казахская (kz)", "Kazakh (kz)"),
+    ("et", "Эстонская (et)", "Estonian (et)"),
+    ("fi", "Финская (fi)", "Finnish (fi)"),
+    ("nl", "Нидерландская (nl)", "Dutch (nl)"),
+    ("tr", "Турецкая (tr)", "Turkish (tr)"),
+    ("pt", "Португальская (pt)", "Portuguese (pt)"),
+    ("cz", "Чешская (cz)", "Czech (cz)"),
+    ("se", "Шведская (se)", "Swedish (se)"),
+    ("gb", "Английская UK (gb)", "English UK (gb)"),
+    ("us", "Английская US (us)", "English US (us)"),
+    ("ru", "Русская (ru)", "Russian (ru)"),
+]
+
+KB_TOGGLES = {
+    "grp:alt_shift_toggle": {
+        "ru": "Alt + Shift", "en": "Alt + Shift",
+        "gnome": "['<Alt>Shift_L']", "gnome_back": "['<Shift>Alt_L']",
+    },
+    "grp:win_space_toggle": {
+        "ru": "Super + Пробел", "en": "Super + Space",
+        "gnome": "['<Super>space']", "gnome_back": "['<Shift><Super>space']",
+    },
+    "grp:ctrl_shift_toggle": {
+        "ru": "Ctrl + Shift", "en": "Ctrl + Shift",
+        "gnome": "['<Control>Shift_L']", "gnome_back": "['<Shift>Control_L']",
+    },
+    "grp:caps_toggle": {
+        "ru": "Caps Lock", "en": "Caps Lock",
+        "gnome": "['Caps_Lock']", "gnome_back": "['<Shift>Caps_Lock']",
+    },
+    "grp:ctrl_space_toggle": {
+        "ru": "Ctrl + Пробел", "en": "Ctrl + Space",
+        "gnome": "['<Control>space']", "gnome_back": "['<Shift><Control>space']",
+    },
+    "grp:alt_space_toggle": {
+        "ru": "Alt + Пробел", "en": "Alt + Space",
+        "gnome": "['<Alt>space']", "gnome_back": "['<Shift><Alt>space']",
+    },
+    "grp:ctrl_alt_toggle": {
+        "ru": "Ctrl + Alt", "en": "Ctrl + Alt",
+        "gnome": "['<Control>Alt_L']", "gnome_back": "['<Alt>Control_L']",
+    },
+}
+
+
+def resolve_keyboard(state: dict) -> tuple[str, list[str], str]:
+    """Возвращает (console_keymap, список X11-раскладок [до 2], XkbOptions)."""
+    l1 = (state.get("kb_layout1") or "").strip()
+    l2 = (state.get("kb_layout2") or "").strip()
+    if not l1:
+        base_key = state.get("kb") or ("us_ru" if state.get("lang") == "ru" else "us")
+        if base_key == "us_ru":
+            l1, l2 = "us", "ru"
+        else:
+            l1 = base_key or "us"
+
+    console_km = "us" if l1 == "us" else ("ru" if l1 == "ru" else KB_LAYOUTS.get(l1, KB_LAYOUTS["us"])["kb_layout"])
+    layouts = [l1]
+    if l2 and l2 != l1:
+        layouts.append(l2)
+
+    toggle = state.get("kb_toggle") or "grp:alt_shift_toggle"
+    if toggle not in KB_TOGGLES:
+        toggle = "grp:alt_shift_toggle"
+    opts = toggle if len(layouts) >= 2 else ""
+    return console_km, layouts, opts
+
 # installer.py set_vconsole(): FONT= пишется в /etc/vconsole.conf; если имя
 # начинается на "ter-", archinstall сам ставит terminus-font.
 # default8x16 НЕ содержит кириллицы -> при sys_lang=ru_RU сообщения в TTY
@@ -207,6 +282,165 @@ def _build_wifi_transfer_cmds(iwd_dir: Path | None = None) -> list[str]:
     return ["\n".join(lines) + "\n"]
 
 
+
+def _build_zsh_setup_cmds() -> list[str]:
+    """Настраивает Zsh + Starship + плагины и делает его оболочкой по умолчанию."""
+    return [
+        "cat > /etc/skel/.zshrc <<'ZSHEOF'
+"
+        "# Ouvert Linux default Zsh configuration
+"
+        "HISTFILE=~/.zsh_history
+"
+        "HISTSIZE=10000
+"
+        "SAVEHIST=10000
+"
+        "setopt SHARE_HISTORY HIST_IGNORE_DUPS HIST_IGNORE_SPACE AUTO_CD
+"
+        "
+"
+        "# Автодополнение
+"
+        "autoload -Uz compinit && compinit
+"
+        "zstyle ':completion:*' menu select
+"
+        "zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+"
+        "
+"
+        "# Клавиши навигации
+"
+        "bindkey -e
+"
+        "bindkey '^[[H' beginning-of-line
+"
+        "bindkey '^[[F' end-of-line
+"
+        "bindkey '^[[3~' delete-char
+"
+        "bindkey '^[[1;5C' forward-word
+"
+        "bindkey '^[[1;5D' backward-word
+"
+        "
+"
+        "# Алиасы
+"
+        "alias ls='ls --color=auto'
+"
+        "alias ll='ls -lah --color=auto'
+"
+        "alias grep='grep --color=auto'
+"
+        "
+"
+        "# Плагины
+"
+        "[ -f /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh ] && \
+"
+        "  source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+"
+        "[ -f /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] && \
+"
+        "  source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+"
+        "
+"
+        "# Промпт Starship
+"
+        "command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
+"
+        "
+"
+        "# Ouvert Linux
+"
+        "command -v fastfetch >/dev/null 2>&1 && fastfetch
+"
+        "ZSHEOF
+"
+        "mkdir -p /etc/skel/.config
+"
+        "cat > /etc/skel/.config/starship.toml <<'STAREOF'
+"
+        "add_newline = false
+"
+        "format = "$username$directory$git_branch$git_status$character"
+"
+        "
+"
+        "[username]
+"
+        "style_user = "bold cyan"
+"
+        "format = "[$user]($style) "
+"
+        "show_always = false
+"
+        "
+"
+        "[directory]
+"
+        "style = "bold blue"
+"
+        "truncation_length = 3
+"
+        "truncate_to_repo = true
+"
+        "
+"
+        "[git_branch]
+"
+        "symbol = "git:"
+"
+        "style = "bold purple"
+"
+        "format = "[$symbol$branch]($style) "
+"
+        "
+"
+        "[git_status]
+"
+        "style = "bold yellow"
+"
+        "
+"
+        "[character]
+"
+        "success_symbol = "[❯](bold green)"
+"
+        "error_symbol = "[❯](bold red)"
+"
+        "STAREOF
+"
+        "if [ -f /etc/default/useradd ]; then
+"
+        "  sed -i 's|^SHELL=.*|SHELL=/usr/bin/zsh|' /etc/default/useradd || true
+"
+        "fi
+"
+        "for h in /home/*; do
+"
+        "  [ -d "$h" ] || continue
+"
+        "  u=$(basename "$h")
+"
+        "  [ -e "$h/.zshrc" ] || cp /etc/skel/.zshrc "$h/.zshrc" || true
+"
+        "  mkdir -p "$h/.config"
+"
+        "  [ -e "$h/.config/starship.toml" ] || cp /etc/skel/.config/starship.toml "$h/.config/starship.toml" || true
+"
+        "  chown -R "$u:$u" "$h/.zshrc" "$h/.config/starship.toml" 2>/dev/null || true
+"
+        "  chsh -s /usr/bin/zsh "$u" 2>/dev/null || true
+"
+        "done
+"
+    ]
+
+
 def build_custom_commands(state: dict) -> list[str]:
     """Шелл-скрипты, выполняемые в чруте ЦЕЛИ после установки
        (installer.py: arch-chroot -S <target> bash script; guided.py:181).
@@ -215,9 +449,10 @@ def build_custom_commands(state: dict) -> list[str]:
        переключатель us,ru делаем файлом сами.
     """
     cmds: list[str] = []
-    kb = KB_LAYOUTS.get(state.get("kb") or "us")
-    if kb and kb["x11"]:
-        layout, opts = kb["x11"]
+    console_km, layouts, opts = resolve_keyboard(state)
+    if len(layouts) >= 2:
+        layout = ",".join(layouts)
+        tinfo = KB_TOGGLES[opts]
         # ★ Bug 55 vconsole: НИЖНИЙ СЛОЙ РАСКЛАДКИ — localed, но говорить
         # с ним надо ФАЙЛОМ, а не localectl.
         # Журнал ПЕРВОЙ загрузки beta-4.3 на t27 (снят 13.08.26):
@@ -244,7 +479,7 @@ def build_custom_commands(state: dict) -> list[str]:
             "sed -i '/^KEYMAP=/d;/^XKBLAYOUT=/d;/^XKBMODEL=/d;"
             "/^XKBVARIANT=/d;/^XKBOPTIONS=/d' /etc/vconsole.conf || true\n"
             "cat >> /etc/vconsole.conf <<'VCEOF'\n"
-            f"KEYMAP={kb['kb_layout']}\n"
+            f"KEYMAP={console_km}\n"
             f"XKBLAYOUT={layout}\n"
             "XKBMODEL=pc105+inet\n"
             f"XKBVARIANT={variant}\n"
@@ -282,7 +517,7 @@ def build_custom_commands(state: dict) -> list[str]:
             "mkdir -p /etc/xdg /etc/skel/.config\n"
             "cat > /etc/skel/.config/kxkbrc <<'KXKBEOF'\n"
             "[Layout]\n"
-            "DisplayNames=,\n"
+            f"DisplayNames={variant}\n"
             f"LayoutList={layout}\n"
             "Model=pc104\n"
             f"Options={opts}\n"
@@ -312,8 +547,8 @@ def build_custom_commands(state: dict) -> list[str]:
             f"xkb-options=['{opts}']\n"
             "\n"
             "[org/gnome/desktop/wm/keybindings]\n"
-            "switch-input-source=['<Alt>Shift_L']\n"
-            "switch-input-source-backward=['<Shift>Alt_L']\n"
+            f"switch-input-source={tinfo['gnome']}\n"
+            f"switch-input-source-backward={tinfo['gnome_back']}\n"
             "\n"
             # Cinnamon форкнул гномовские схемы. Гномовские он ЧИТАЕТ, но
             # csd-keyboard применяет ИМЕННО свои (доказано на t20 27.07.26).
@@ -323,8 +558,8 @@ def build_custom_commands(state: dict) -> list[str]:
             f"sources=[{srcs}]\n"
             "\n"
             "[org/cinnamon/desktop/keybindings/wm]\n"
-            "switch-input-source=['<Alt>Shift_L']\n"
-            "switch-input-source-backward=['<Shift>Alt_L']\n"
+            f"switch-input-source={tinfo['gnome']}\n"
+            f"switch-input-source-backward={tinfo['gnome_back']}\n"
             "KBDEOF\n"
             "dconf update || true\n"
             # Системный слой xkb для «голых» wayland-композиторов
@@ -553,6 +788,7 @@ def build_custom_commands(state: dict) -> list[str]:
     # =================== КОНЕЦ ЭТАПА 3 ===================
 
     cmds.extend(_build_wifi_transfer_cmds())
+    cmds.extend(_build_zsh_setup_cmds())
     return cmds
 
 
@@ -870,6 +1106,11 @@ PACKAGES = [
     "os-prober",  # bug 25: обнаружение второй ОС (Windows) для меню GRUB
     # официальные репозитории
     "kitty",
+    "zsh",
+    "zsh-autosuggestions",
+    "zsh-syntax-highlighting",
+    "zsh-completions",
+    "starship",
     "fastfetch",
     "cmatrix",
     "cava",
