@@ -887,13 +887,16 @@ PACKAGES_MULTILIB = ["steam"]
 BROWSERS = [
     ("waterfox-bin", "Waterfox"),
     ("helium-browser-bin", "Helium"),
+    ("firefox", "Firefox"),
     ("chromium", "Chromium"),
+    ("", "sw_none"),
 ]
 EDITORS = [
     ("kate", "Kate"),
     ("vim", "Vim"),
     ("nano", "Nano"),
     ("micro", "Micro"),
+    ("", "sw_none"),
 ]
 
 

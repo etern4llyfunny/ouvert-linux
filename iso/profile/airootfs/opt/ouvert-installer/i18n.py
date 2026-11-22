@@ -472,6 +472,7 @@ STRINGS = {
         "en": "Easy tool to install GE-Proton — helps run Windows games in Steam and Lutris.",
     },
     "sw_label": {"ru": "Программы", "en": "Software"},
+    "sw_none": {"ru": "Не устанавливать", "en": "Do not install"},
 }
 
 

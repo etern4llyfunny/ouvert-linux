@@ -599,14 +599,17 @@ class SoftwarePage(BasePage):
         self.lbl_browser.setStyleSheet("font-weight: 600;")
         self.body.addWidget(self.lbl_browser)
         self.grp_browser = QButtonGroup(self)
+        self.none_rbs = []
         cur_b = self.state.get("browser", "waterfox-bin")
         for pkg, name in BROWSERS:
-            rb = QRadioButton(name)
+            rb = QRadioButton(tr(name) if pkg == "" else name)
             rb.toggled.connect(lambda on, p=pkg: on and self.state.update(browser=p))
             if pkg == cur_b:
                 rb.setChecked(True)
             self.grp_browser.addButton(rb)
             self.body.addWidget(rb)
+            if pkg == "":
+                self.none_rbs.append(rb)
 
         self.body.addSpacing(10)
         self.lbl_editor = QLabel()
@@ -615,12 +618,14 @@ class SoftwarePage(BasePage):
         self.grp_editor = QButtonGroup(self)
         cur_e = self.state.get("editor", "kate")
         for pkg, name in EDITORS:
-            rb = QRadioButton(name)
+            rb = QRadioButton(tr(name) if pkg == "" else name)
             rb.toggled.connect(lambda on, p=pkg: on and self.state.update(editor=p))
             if pkg == cur_e:
                 rb.setChecked(True)
             self.grp_editor.addButton(rb)
             self.body.addWidget(rb)
+            if pkg == "":
+                self.none_rbs.append(rb)
 
         self.body.addSpacing(10)
         self.lbl_gaming = QLabel()
@@ -644,6 +649,8 @@ class SoftwarePage(BasePage):
         self.lbl_gaming.setText(tr("sw_gaming"))
         self.cb_protonup.setText(tr("sw_protonup"))
         self.hint_protonup.setText(tr("sw_protonup_hint"))
+        for rb in self.none_rbs:
+            rb.setText(tr("sw_none"))
 
 
 class ReposPage(BasePage):
@@ -709,7 +716,7 @@ class SummaryPage(BasePage):
                 s.get("browser", "waterfox-bin"),
                 s.get("editor", "kate"),
                 "protonup-qt" if s.get("protonup", True) else "",
-            ]))),
+            ])) or "—"),
             (tr("repos_label"), ", ".join(s.get("repos") or []) or "—"),
             (tr("disk_label"), s.get("disk_desc") or ns),
             (tr("part_label"), s.get("part_desc") or ns),
