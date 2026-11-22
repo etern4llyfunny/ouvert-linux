@@ -16,7 +16,7 @@ import overlay
 from config_gen import write_configs
 from i18n import tr
 from pages import (
-    DesktopPage, DiskPage, GfxPage, NetworkPage, ProgressPage,
+    DesktopPage, DiskPage, GfxPage, SoftwarePage, NetworkPage, ProgressPage,
     SummaryPage, UserPage, WelcomePage,
 )
 from partitioning import PartitioningPage
@@ -50,6 +50,9 @@ class InstallerWindow(QMainWindow):
             "net_ok": False,
             "timezone": "Europe/Moscow",
             "gfx": "All open-source",
+            "browser": "waterfox-bin",
+            "editor": "kate",
+            "protonup": True,
             "repos": ["multilib"],
             "kb": "us_ru",
             "kernel": "ouvert",
@@ -113,6 +116,7 @@ class InstallerWindow(QMainWindow):
             UserPage(self.state),
             DesktopPage(self.state),
             GfxPage(self.state),
+            SoftwarePage(self.state),
             AdvancedPage(self.state),
             SummaryPage(self.state),
             self.progress,

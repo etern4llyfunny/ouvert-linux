@@ -460,6 +460,18 @@ STRINGS = {
     "stage_pkg": {"ru": "Пакеты: %s из %s", "en": "Packages: %s of %s"},
     "stage_fstab": {"ru": "Запись fstab…", "en": "Writing fstab…"},
     "stage_sync": {"ru": "Сброс данных на диск…", "en": "Syncing to disk…"},
+
+    # --- v10: выбор программ ---
+    "sw_title": {"ru": "Программы", "en": "Software"},
+    "sw_browser": {"ru": "Браузер", "en": "Browser"},
+    "sw_editor": {"ru": "Текстовый редактор", "en": "Text editor"},
+    "sw_gaming": {"ru": "Игры", "en": "Gaming"},
+    "sw_protonup": {"ru": "Установить ProtonUp-Qt", "en": "Install ProtonUp-Qt"},
+    "sw_protonup_hint": {
+        "ru": "Удобная утилита для установки GE-Proton — помогает запускать Windows-игры в Steam и Lutris.",
+        "en": "Easy tool to install GE-Proton — helps run Windows games in Steam and Lutris.",
+    },
+    "sw_label": {"ru": "Программы", "en": "Software"},
 }
 
 

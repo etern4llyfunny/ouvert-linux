@@ -589,6 +589,63 @@ class GfxPage(BasePage):
             rb.setText(tr(drv))
 
 
+
+class SoftwarePage(BasePage):
+    def __init__(self, state: dict):
+        super().__init__(state)
+        from config_gen import BROWSERS, EDITORS
+
+        self.lbl_browser = QLabel()
+        self.lbl_browser.setStyleSheet("font-weight: 600;")
+        self.body.addWidget(self.lbl_browser)
+        self.grp_browser = QButtonGroup(self)
+        cur_b = self.state.get("browser", "waterfox-bin")
+        for pkg, name in BROWSERS:
+            rb = QRadioButton(name)
+            rb.toggled.connect(lambda on, p=pkg: on and self.state.update(browser=p))
+            if pkg == cur_b:
+                rb.setChecked(True)
+            self.grp_browser.addButton(rb)
+            self.body.addWidget(rb)
+
+        self.body.addSpacing(10)
+        self.lbl_editor = QLabel()
+        self.lbl_editor.setStyleSheet("font-weight: 600;")
+        self.body.addWidget(self.lbl_editor)
+        self.grp_editor = QButtonGroup(self)
+        cur_e = self.state.get("editor", "kate")
+        for pkg, name in EDITORS:
+            rb = QRadioButton(name)
+            rb.toggled.connect(lambda on, p=pkg: on and self.state.update(editor=p))
+            if pkg == cur_e:
+                rb.setChecked(True)
+            self.grp_editor.addButton(rb)
+            self.body.addWidget(rb)
+
+        self.body.addSpacing(10)
+        self.lbl_gaming = QLabel()
+        self.lbl_gaming.setStyleSheet("font-weight: 600;")
+        self.body.addWidget(self.lbl_gaming)
+        self.cb_protonup = QCheckBox()
+        self.cb_protonup.setChecked(bool(self.state.get("protonup", True)))
+        self.cb_protonup.toggled.connect(lambda on: self.state.update(protonup=on))
+        self.body.addWidget(self.cb_protonup)
+
+        self.hint_protonup = QLabel()
+        self.hint_protonup.setObjectName("muted")
+        self.hint_protonup.setWordWrap(True)
+        self.body.addWidget(self.hint_protonup)
+        self.retranslate()
+
+    def retranslate(self) -> None:
+        self.title.setText(tr("sw_title"))
+        self.lbl_browser.setText(tr("sw_browser"))
+        self.lbl_editor.setText(tr("sw_editor"))
+        self.lbl_gaming.setText(tr("sw_gaming"))
+        self.cb_protonup.setText(tr("sw_protonup"))
+        self.hint_protonup.setText(tr("sw_protonup_hint"))
+
+
 class ReposPage(BasePage):
     def __init__(self, state: dict):
         super().__init__(state)
@@ -648,6 +705,11 @@ class SummaryPage(BasePage):
             (tr("tz_label"), s.get("timezone") or ns),
             (tr("desktop_label"), s.get("profile_name") or ns),
             (tr("gfx_label"), tr(s["gfx"]) if s.get("gfx") else ns),  # Патч 71
+            (tr("sw_label"), ", ".join(filter(None, [
+                s.get("browser", "waterfox-bin"),
+                s.get("editor", "kate"),
+                "protonup-qt" if s.get("protonup", True) else "",
+            ]))),
             (tr("repos_label"), ", ".join(s.get("repos") or []) or "—"),
             (tr("disk_label"), s.get("disk_desc") or ns),
             (tr("part_label"), s.get("part_desc") or ns),

@@ -864,15 +864,12 @@ CUSTOM_REPOS = [
 # Предустановка. Из нашего репо приедут и зависимости (python-steam и др.).
 PACKAGES = [
     # наш репозиторий
-    "waterfox-bin",  # AUR, epoch 1; conflicts=('waterfox'), ставит /opt/waterfox
-    "protonup-qt",
     "paru",
     "ouvert-branding",  # этап 3: обои, лого, конфиг fastfetch
     "ouvert-keyring",  # Патч 80: ключ подписи онлайн-репо [ouvert]
     "os-prober",  # bug 25: обнаружение второй ОС (Windows) для меню GRUB
     # официальные репозитории
     "kitty",
-    "kate",
     "fastfetch",
     "cmatrix",
     "cava",
@@ -887,8 +884,29 @@ PACKAGES = [
 PACKAGES_MULTILIB = ["steam"]
 
 
+BROWSERS = [
+    ("waterfox-bin", "Waterfox"),
+    ("helium-browser-bin", "Helium"),
+    ("chromium", "Chromium"),
+]
+EDITORS = [
+    ("kate", "Kate"),
+    ("vim", "Vim"),
+    ("nano", "Nano"),
+    ("micro", "Micro"),
+]
+
+
 def build_packages(state: dict) -> list[str]:
     pkgs = list(PACKAGES)
+    browser = state.get("browser", "waterfox-bin")
+    if browser:
+        pkgs.append(browser)
+    if state.get("protonup", True):
+        pkgs.append("protonup-qt")
+    editor = state.get("editor", "kate")
+    if editor:
+        pkgs.append(editor)
     if "multilib" in (state.get("repos") or []):
         pkgs += PACKAGES_MULTILIB
     return pkgs
