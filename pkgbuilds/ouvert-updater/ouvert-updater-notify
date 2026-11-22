@@ -1,0 +1,25 @@
+#!/bin/sh
+# Проверка обновлений раз в 10 дней и рекомендательное уведомление
+command -v checkupdates >/dev/null 2>&1 || exit 0
+command -v notify-send >/dev/null 2>&1 || exit 0
+
+OUT=$(checkupdates 2>/dev/null)
+RC=$?
+[ "$RC" -eq 0 ] || exit 0
+
+COUNT=$(printf '%s
+' "$OUT" | grep -c .)
+[ "$COUNT" -gt 0 ] || exit 0
+
+case "${LC_ALL:-${LANG:-}}" in
+  ru*)
+    TITLE="Обновление Ouvert Linux"
+    BODY="Доступно обновлений: $COUNT. Рекомендуем открыть Ouvert Updater и обновить систему."
+    ;;
+  *)
+    TITLE="Ouvert Linux Update"
+    BODY="$COUNT updates available. Open Ouvert Updater to update your system."
+    ;;
+esac
+
+notify-send --app-name="Ouvert Updater" --icon=ouvert "$TITLE" "$BODY"

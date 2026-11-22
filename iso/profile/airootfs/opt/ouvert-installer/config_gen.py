@@ -1026,6 +1026,7 @@ PACKAGES = [
     "paru",
     "ouvert-branding",  # этап 3: обои, лого, конфиг fastfetch
     "ouvert-keyring",  # Патч 80: ключ подписи онлайн-репо [ouvert]
+    "ouvert-updater",
     "os-prober",  # bug 25: обнаружение второй ОС (Windows) для меню GRUB
     # официальные репозитории
     "kitty",

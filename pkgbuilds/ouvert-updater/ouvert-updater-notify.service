@@ -1,0 +1,6 @@
+[Unit]
+Description=Check for Ouvert Linux updates and send a notification
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/ouvert-updater/notify.sh

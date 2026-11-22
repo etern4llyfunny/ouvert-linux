@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Ouvert Updater
+Name[ru]=Обновление Ouvert Linux
+Comment=Check and install system updates
+Comment[ru]=Проверка и установка обновлений системы
+Exec=/usr/bin/ouvert-updater
+Icon=ouvert
+Terminal=false
+Categories=System;Settings;
