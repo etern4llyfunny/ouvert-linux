@@ -285,160 +285,83 @@ def _build_wifi_transfer_cmds(iwd_dir: Path | None = None) -> list[str]:
 
 def _build_zsh_setup_cmds() -> list[str]:
     """Настраивает Zsh + Starship + плагины и делает его оболочкой по умолчанию."""
-    return [
-        "cat > /etc/skel/.zshrc <<'ZSHEOF'
-"
-        "# Ouvert Linux default Zsh configuration
-"
-        "HISTFILE=~/.zsh_history
-"
-        "HISTSIZE=10000
-"
-        "SAVEHIST=10000
-"
-        "setopt SHARE_HISTORY HIST_IGNORE_DUPS HIST_IGNORE_SPACE AUTO_CD
-"
-        "
-"
-        "# Автодополнение
-"
-        "autoload -Uz compinit && compinit
-"
-        "zstyle ':completion:*' menu select
-"
-        "zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
-"
-        "
-"
-        "# Клавиши навигации
-"
-        "bindkey -e
-"
-        "bindkey '^[[H' beginning-of-line
-"
-        "bindkey '^[[F' end-of-line
-"
-        "bindkey '^[[3~' delete-char
-"
-        "bindkey '^[[1;5C' forward-word
-"
-        "bindkey '^[[1;5D' backward-word
-"
-        "
-"
-        "# Алиасы
-"
-        "alias ls='ls --color=auto'
-"
-        "alias ll='ls -lah --color=auto'
-"
-        "alias grep='grep --color=auto'
-"
-        "
-"
-        "# Плагины
-"
-        "[ -f /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh ] && \
-"
-        "  source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-"
-        "[ -f /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] && \
-"
-        "  source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-"
-        "
-"
-        "# Промпт Starship
-"
-        "command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
-"
-        "
-"
-        "# Ouvert Linux
-"
-        "command -v fastfetch >/dev/null 2>&1 && fastfetch
-"
-        "ZSHEOF
-"
-        "mkdir -p /etc/skel/.config
-"
-        "cat > /etc/skel/.config/starship.toml <<'STAREOF'
-"
-        "add_newline = false
-"
-        "format = "$username$directory$git_branch$git_status$character"
-"
-        "
-"
-        "[username]
-"
-        "style_user = "bold cyan"
-"
-        "format = "[$user]($style) "
-"
-        "show_always = false
-"
-        "
-"
-        "[directory]
-"
-        "style = "bold blue"
-"
-        "truncation_length = 3
-"
-        "truncate_to_repo = true
-"
-        "
-"
-        "[git_branch]
-"
-        "symbol = "git:"
-"
-        "style = "bold purple"
-"
-        "format = "[$symbol$branch]($style) "
-"
-        "
-"
-        "[git_status]
-"
-        "style = "bold yellow"
-"
-        "
-"
-        "[character]
-"
-        "success_symbol = "[❯](bold green)"
-"
-        "error_symbol = "[❯](bold red)"
-"
-        "STAREOF
-"
-        "if [ -f /etc/default/useradd ]; then
-"
-        "  sed -i 's|^SHELL=.*|SHELL=/usr/bin/zsh|' /etc/default/useradd || true
-"
-        "fi
-"
-        "for h in /home/*; do
-"
-        "  [ -d "$h" ] || continue
-"
-        "  u=$(basename "$h")
-"
-        "  [ -e "$h/.zshrc" ] || cp /etc/skel/.zshrc "$h/.zshrc" || true
-"
-        "  mkdir -p "$h/.config"
-"
-        "  [ -e "$h/.config/starship.toml" ] || cp /etc/skel/.config/starship.toml "$h/.config/starship.toml" || true
-"
-        "  chown -R "$u:$u" "$h/.zshrc" "$h/.config/starship.toml" 2>/dev/null || true
-"
-        "  chsh -s /usr/bin/zsh "$u" 2>/dev/null || true
-"
-        "done
-"
-    ]
+    return ["""cat > /etc/skel/.zshrc <<'ZSHEOF'
+# Ouvert Linux default Zsh configuration
+HISTFILE=~/.zsh_history
+HISTSIZE=10000
+SAVEHIST=10000
+setopt SHARE_HISTORY HIST_IGNORE_DUPS HIST_IGNORE_SPACE AUTO_CD
+
+# Автодополнение
+autoload -Uz compinit && compinit
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+
+# Клавиши навигации
+bindkey -e
+bindkey '^[[H' beginning-of-line
+bindkey '^[[F' end-of-line
+bindkey '^[[3~' delete-char
+bindkey '^[[1;5C' forward-word
+bindkey '^[[1;5D' backward-word
+
+# Алиасы
+alias ls='ls --color=auto'
+alias ll='ls -lah --color=auto'
+alias grep='grep --color=auto'
+
+# Плагины
+[ -f /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh ] && \
+  source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+[ -f /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] && \
+  source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# Промпт Starship
+command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
+
+# Ouvert Linux
+command -v fastfetch >/dev/null 2>&1 && fastfetch
+ZSHEOF
+mkdir -p /etc/skel/.config
+cat > /etc/skel/.config/starship.toml <<'STAREOF'
+add_newline = false
+format = "$username$directory$git_branch$git_status$character"
+
+[username]
+style_user = "bold cyan"
+format = "[$user]($style) "
+show_always = false
+
+[directory]
+style = "bold blue"
+truncation_length = 3
+truncate_to_repo = true
+
+[git_branch]
+symbol = "git:"
+style = "bold purple"
+format = "[$symbol$branch]($style) "
+
+[git_status]
+style = "bold yellow"
+
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"
+STAREOF
+if [ -f /etc/default/useradd ]; then
+  sed -i 's|^SHELL=.*|SHELL=/usr/bin/zsh|' /etc/default/useradd || true
+fi
+for h in /home/*; do
+  [ -d "$h" ] || continue
+  u=$(basename "$h")
+  [ -e "$h/.zshrc" ] || cp /etc/skel/.zshrc "$h/.zshrc" || true
+  mkdir -p "$h/.config"
+  [ -e "$h/.config/starship.toml" ] || cp /etc/skel/.config/starship.toml "$h/.config/starship.toml" || true
+  chown -R "$u:$u" "$h/.zshrc" "$h/.config/starship.toml" 2>/dev/null || true
+  chsh -s /usr/bin/zsh "$u" 2>/dev/null || true
+done
+"""]
 
 
 def build_custom_commands(state: dict) -> list[str]:
