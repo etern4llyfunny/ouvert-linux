@@ -136,6 +136,77 @@ def pick_console_font(lang: str) -> str:
     return DEFAULT_FONT
 
 
+
+def _build_wifi_transfer_cmds(iwd_dir: Path | None = None) -> list[str]:
+    """Переносит сохранённые профили Wi-Fi из live (iwd) в NetworkManager цели."""
+    import base64
+    import configparser
+    import re
+    import uuid
+
+    src = iwd_dir if iwd_dir is not None else Path("/var/lib/iwd")
+    if not src.is_dir():
+        return []
+
+    profiles: list[tuple[str, str]] = []
+    for f in sorted(list(src.glob("*.psk")) + list(src.glob("*.open"))):
+        stem = f.stem
+        if stem.startswith("="):
+            try:
+                ssid = bytes.fromhex(stem[1:]).decode("utf-8")
+            except ValueError:
+                continue
+        else:
+            ssid = stem
+        if not ssid:
+            continue
+
+        sec_block = ""
+        if f.suffix == ".psk":
+            cp = configparser.ConfigParser(interpolation=None)
+            try:
+                cp.read(f, encoding="utf-8")
+            except (OSError, configparser.Error):
+                continue
+            psk = cp.get("Security", "Passphrase", fallback="").strip()
+            if not psk:
+                psk = cp.get("Security", "PreSharedKey", fallback="").strip()
+            if not psk:
+                continue
+            sec_block = f"\n[wifi-security]\nkey-mgmt=wpa-psk\npsk={psk}\n"
+
+        conn_uuid = str(uuid.uuid5(uuid.NAMESPACE_DNS, f"ouvert-wifi:{ssid}"))
+        nm_ini = (
+            "[connection]\n"
+            f"id={ssid}\n"
+            f"uuid={conn_uuid}\n"
+            "type=wifi\n"
+            "autoconnect=true\n\n"
+            "[wifi]\n"
+            "mode=infrastructure\n"
+            f"ssid={ssid}\n"
+            f"{sec_block}\n"
+            "[ipv4]\n"
+            "method=auto\n\n"
+            "[ipv6]\n"
+            "addr-gen-mode=default\n"
+            "method=auto\n"
+        )
+        safe = re.sub(r"[^A-Za-z0-9._-]+", "_", ssid).strip("_") or "wifi"
+        fname = f"ouvert-{safe[:48]}-{conn_uuid[:8]}.nmconnection"
+        profiles.append((fname, base64.b64encode(nm_ini.encode("utf-8")).decode("ascii")))
+
+    if not profiles:
+        return []
+
+    lines = ["install -d -m 700 /etc/NetworkManager/system-connections"]
+    for fname, b64 in profiles:
+        dst = f"/etc/NetworkManager/system-connections/{fname}"
+        lines.append(f"printf '%s' '{b64}' | base64 -d > '{dst}'")
+        lines.append(f"chmod 600 '{dst}' && chown root:root '{dst}'")
+    return ["\n".join(lines) + "\n"]
+
+
 def build_custom_commands(state: dict) -> list[str]:
     """Шелл-скрипты, выполняемые в чруте ЦЕЛИ после установки
        (installer.py: arch-chroot -S <target> bash script; guided.py:181).
@@ -481,6 +552,7 @@ def build_custom_commands(state: dict) -> list[str]:
     )
     # =================== КОНЕЦ ЭТАПА 3 ===================
 
+    cmds.extend(_build_wifi_transfer_cmds())
     return cmds
 
 
