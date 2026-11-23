@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<labwc_config>
+  <theme>
+    <name>Plume</name>
+    <cornerRadius>8</cornerRadius>
+    <font name="Onest" size="10" />
+  </theme>
+  <desktops>
+    <names>
+      <name>1</name>
+      <name>2</name>
+      <name>3</name>
+      <name>4</name>
+      <name>5</name>
+    </names>
+  </desktops>
+  <windowRules>
+    <windowRule identifier="plume-launcher" serverDecoration="no" skipTaskbar="yes">
+      <action name="MoveTo" x="8" y="40" />
+    </windowRule>
+  </windowRules>
+  <keyboard>
+    <default />
+    <keybind key="W-Return">
+      <action name="Execute" command="kitty" />
+    </keybind>
+    <keybind key="W-e">
+      <action name="Execute" command="thunar" />
+    </keybind>
+    <keybind key="W-d">
+      <action name="Execute" command="/home/admin/pzhavos/plume/plume-launcher.py" />
+    </keybind>
+    <keybind key="W-q">
+      <action name="Close" />
+    </keybind>
+    <keybind key="C-W-Left">
+      <action name="GoToDesktop" to="left" wrap="no" />
+    </keybind>
+    <keybind key="C-W-Right">
+      <action name="GoToDesktop" to="right" wrap="no" />
+    </keybind>
+  </keyboard>
+</labwc_config>

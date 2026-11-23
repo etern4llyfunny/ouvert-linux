@@ -1,0 +1,8 @@
+#!/bin/sh
+if [ -f "$HOME/pzhavos/pkgbuilds/ouvert-branding/ouvert-walp.png" ]; then
+  swaybg -i "$HOME/pzhavos/pkgbuilds/ouvert-branding/ouvert-walp.png" -m fill &
+else
+  swaybg -c "#141821" &
+fi
+waybar -c "$HOME/pzhavos/plume/config/waybar/config.jsonc" -s "$HOME/pzhavos/plume/config/waybar/style.css" &
+mako -c "$HOME/pzhavos/plume/config/mako/config" &

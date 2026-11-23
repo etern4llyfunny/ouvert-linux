@@ -1,0 +1,48 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 40,
+  "spacing": 6,
+  "modules-left": ["image#plume", "ext/workspaces", "wlr/taskbar"],
+  "modules-center": [],
+  "modules-right": ["pulseaudio", "clock", "network", "battery", "custom/power"],
+
+  "image#plume": {
+    "path": "/home/admin/pzhavos/plume/assets/plume-logo-clean.svg",
+    "size": 22,
+    "on-click": "/home/admin/pzhavos/plume/plume-launcher.py",
+    "tooltip": false
+  },
+  "ext/workspaces": {
+    "format": "{name}",
+    "on-click": "activate",
+    "ignore-hidden": false
+  },
+  "wlr/taskbar": {
+    "format": "{title:.22}",
+    "on-click": "activate",
+    "tooltip": false
+  },
+  "clock": {
+    "format": "{:%d/%m/%Y  %H:%M}",
+    "tooltip": false
+  },
+  "pulseaudio": {
+    "format": "VOL {volume}%",
+    "format-muted": "MUTE",
+    "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle"
+  },
+  "network": {
+    "format-wifi": "WIFI {signalStrength}%",
+    "format-ethernet": "ETH",
+    "format-disconnected": "OFF"
+  },
+  "battery": {
+    "format": "BAT {capacity}%"
+  },
+  "custom/power": {
+    "format": "⏻",
+    "on-click": "labwc --exit",
+    "tooltip": false
+  }
+}
